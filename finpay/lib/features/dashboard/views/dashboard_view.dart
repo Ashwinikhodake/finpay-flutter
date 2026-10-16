@@ -84,6 +84,13 @@ class DashboardView extends GetView<DashboardController> {
           Row(
             children: [
               _actionButton(
+                icon: Icons.money,
+                label: 'Add Expense',
+                onTap: () => _showExpenseDialog(),
+              ),
+              const SizedBox(width: 12),
+
+              _actionButton(
                 icon: Icons.qr_code_scanner,
                 label: 'Scan & Pay',
                 onTap: () {},
@@ -112,7 +119,7 @@ class DashboardView extends GetView<DashboardController> {
           Obx(
             () => Column(
               children: controller.transactions.map((transaciton) {
-                final amount = transaciton['amount'] as double;
+                final amount = transaciton.amount;
                 final isCredit = amount > 0;
                 return Card(
                   elevation: 0,
@@ -128,8 +135,8 @@ class DashboardView extends GetView<DashboardController> {
                         color: isCredit ? Colors.green : Colors.orange,
                       ),
                     ),
-                    title: Text(transaciton['title'] as String),
-                    subtitle: Text(transaciton['category'] as String),
+                    title: Text(transaciton.title),
+                    subtitle: Text(transaciton.category),
                     trailing: Text(
                       '${isCredit ? '+' : '-'}₹${amount.abs().toStringAsFixed(2)}',
                       style: TextStyle(
@@ -184,6 +191,57 @@ class DashboardView extends GetView<DashboardController> {
         ],
       ),
     ).whenComplete(amountController.dispose);
+  }
+
+  void _showExpenseDialog() {
+    final amountController = TextEditingController();
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Add Expense"),
+        content: TextField(
+          controller: amountController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Amount',
+            prefixText: '₹',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: Get.back, child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              final amount = double.tryParse(amountController.text.trim());
+              if (amount == null || amount <= 0) {
+                Get.snackbar(
+                  'Invalid amount',
+                  'Please enter an amount greater than zero.',
+                );
+                return;
+              }
+              final success = controller.addExpense(amount);
+
+              if (success) {
+                Get.back();
+                Get.snackbar(
+                  'Expense recorded',
+                  'Your wallet balance has been updated.',
+                );
+              } else {
+                Get.snackbar(
+                  'Insufficient balance',
+                  'Your expense exceeds your availabe balance.',
+                );
+              }
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    ).whenComplete(() {
+      amountController.dispose();
+    });
   }
 }
 
