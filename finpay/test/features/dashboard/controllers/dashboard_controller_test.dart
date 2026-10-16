@@ -12,8 +12,14 @@ void main() {
       expect(controller.walletBalance.value, 12450.00);
     });
     test('AddMoney increases the wallet balance', () {
+      final initialTransactionCount = controller.transactions.length;
       controller.addMoney(500);
       expect(controller.walletBalance.value, 12950.00);
+      expect(controller.transactions.length, initialTransactionCount + 1);
+      expect(controller.transactions.first.title, 'Money Added');
+      expect(controller.transactions.first.category, 'Income');
+      expect(controller.transactions.first.amount, 500.00);
+      expect(controller.transactions.first.isIncome, isTrue);
     });
 
     test('addExpense deducts balance and records a transaction', () {
