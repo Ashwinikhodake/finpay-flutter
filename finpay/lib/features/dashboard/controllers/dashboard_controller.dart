@@ -25,11 +25,6 @@ class DashboardController extends GetxController {
     ),
   ].obs;
 
-  void addMoney(double amount) {
-    if (amount < 0) return;
-    walletBalance.value += amount;
-  }
-
   bool addExpense(double amount) {
     if (amount <= 0 || amount > walletBalance.value) {
       return false;
@@ -45,5 +40,19 @@ class DashboardController extends GetxController {
       ),
     );
     return true;
+  }
+
+  void addMoney(double amount) {
+    if (amount < 0) return;
+    walletBalance.value += amount;
+    transactions.insert(
+      0,
+      TransactionModel(
+        title: 'Money Added',
+        category: 'Income',
+        amount: amount,
+        date: DateTime.now(),
+      ),
+    );
   }
 }

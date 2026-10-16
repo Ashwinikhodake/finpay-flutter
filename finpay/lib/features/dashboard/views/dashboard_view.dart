@@ -1,7 +1,7 @@
 import 'package:finpay/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:finpay/features/transactions/views/transaction_history_view.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/state_manager.dart';
+import 'package:get/get.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -105,7 +105,9 @@ class DashboardView extends GetView<DashboardController> {
               _actionButton(
                 icon: Icons.receipt_long,
                 label: 'History',
-                onTap: () {},
+                onTap: () {
+                  Get.to(() => const TransactionHistoryView());
+                },
               ),
             ],
           ),
