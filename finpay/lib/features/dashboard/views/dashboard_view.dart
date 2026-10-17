@@ -196,52 +196,120 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   void _showExpenseDialog() {
+    final titleController = TextEditingController();
     final amountController = TextEditingController();
 
+    final categories = [
+      'Food',
+      'Shopping',
+      'Transport',
+      'Bills',
+      'Health',
+      'Other',
+    ];
+    String selectedCategory = 'Other';
     Get.dialog(
-      AlertDialog(
-        title: const Text("Add Expense"),
-        content: TextField(
-          controller: amountController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'Amount',
-            prefixText: '₹',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: Get.back, child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              final amount = double.tryParse(amountController.text.trim());
-              if (amount == null || amount <= 0) {
-                Get.snackbar(
-                  'Invalid amount',
-                  'Please enter an amount greater than zero.',
-                );
-                return;
-              }
-              final success = controller.addExpense(amount);
+      StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text("Add Expense"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: const InputDecoration(
+                      labelText: 'Expense title',
+                      hintText: 'e.g. Lunch, Grocery shopping',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount',
+                      prefixText: '₹',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    decoration: const InputDecoration(
+                      labelText: 'Category',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: categories.map((category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedCategory = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: Get.back, child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: () {
+                  final title = titleController.text.trim();
+                  final amount = double.tryParse(amountController.text.trim());
 
-              if (success) {
-                Get.back();
-                Get.snackbar(
-                  'Expense recorded',
-                  'Your wallet balance has been updated.',
-                );
-              } else {
-                Get.snackbar(
-                  'Insufficient balance',
-                  'Your expense exceeds your availabe balance.',
-                );
-              }
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
+                  if (title.isEmpty) {
+                    Get.snackbar(
+                      'Missing title',
+                      'Please enter an expense title.',
+                    );
+                    return;
+                  }
+                  if (amount == null || amount <= 0) {
+                    Get.snackbar(
+                      'Invalid amount',
+                      'Please enter an amount greater than zero.',
+                    );
+                    return;
+                  }
+                  final success = controller.addExpense(
+                    amount,
+                    title: title,
+                    category: selectedCategory,
+                  );
+
+                  if (success) {
+                    Get.back();
+                    Get.snackbar(
+                      'Expense recorded',
+                      'Your wallet balance has been updated.',
+                    );
+                  } else {
+                    Get.snackbar(
+                      'Insufficient balance',
+                      'Your expense exceeds your availabe balance.',
+                    );
+                  }
+                },
+                child: const Text('Confirm'),
+              ),
+            ],
+          );
+        },
       ),
     ).whenComplete(() {
+      titleController.dispose();
       amountController.dispose();
     });
   }
