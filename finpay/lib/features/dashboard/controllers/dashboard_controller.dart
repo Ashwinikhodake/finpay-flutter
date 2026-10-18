@@ -1,7 +1,17 @@
 import 'package:finpay/features/transactions/models/transaction_model.dart';
 import 'package:get/state_manager.dart';
+import 'package:get_storage/get_storage.dart';
 
 class DashboardController extends GetxController {
+  final GetStorage _storage;
+  DashboardController({GetStorage? storage})
+    : _storage = storage ?? GetStorage();
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSaveData();
+  }
+
   final walletBalance = 12450.00.obs;
 
   final transactions = <TransactionModel>[
@@ -25,7 +35,11 @@ class DashboardController extends GetxController {
     ),
   ].obs;
 
-  bool addExpense(double amount) {
+  bool addExpense(
+    double amount, {
+    String title = 'Expense',
+    String category = 'Other',
+  }) {
     if (amount <= 0 || amount > walletBalance.value) {
       return false;
     }
@@ -33,17 +47,18 @@ class DashboardController extends GetxController {
     transactions.insert(
       0,
       TransactionModel(
-        title: 'Expense',
-        category: 'Other',
+        title: title,
+        category: category,
         amount: -amount,
         date: DateTime.now(),
       ),
     );
+    _saveData();
     return true;
   }
 
   void addMoney(double amount) {
-    if (amount < 0) return;
+    if (amount <= 0) return;
     walletBalance.value += amount;
     transactions.insert(
       0,
@@ -54,5 +69,41 @@ class DashboardController extends GetxController {
         date: DateTime.now(),
       ),
     );
+    _saveData();
+  }
+
+  void _loadSaveData() {
+    final savedBalance = _storage.read<double>('walletBalance');
+    final savedTransactions = _storage.read<List>('transactions');
+    if (savedBalance != null) {
+      walletBalance.value = savedBalance;
+    }
+    if (savedTransactions != null) {
+      transactions.assignAll(
+        savedTransactions.map(
+          (item) => TransactionModel(
+            title: item['title'] as String,
+            category: item['category'] as String,
+            amount: (item['amount'] as num).toDouble(),
+            date: DateTime.parse(item['date'] as String),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _saveData() {
+    _storage.write('walletBalance', walletBalance.value);
+
+    final savedTransactions = transactions.map((transaction) {
+      return {
+        'title': transaction.title,
+        'category': transaction.category,
+        'amount': transaction.amount,
+        'date': transaction.date.toIso8601String(),
+      };
+    }).toList();
+
+    _storage.write('transactions', savedTransactions);
   }
 }
