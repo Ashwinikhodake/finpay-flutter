@@ -35,6 +35,14 @@ class DashboardController extends GetxController {
     ),
   ].obs;
 
+  double get totalIncome => transactions
+      .where((transaction) => transaction.amount > 0)
+      .fold(0.0, (total, transaction) => total + transaction.amount);
+
+  double get totalExpenses => transactions
+      .where((transaction) => transaction.amount < 0)
+      .fold(0.0, (total, transation) => total + transation.amount.abs());
+
   bool addExpense(
     double amount, {
     String title = 'Expense',
@@ -105,5 +113,19 @@ class DashboardController extends GetxController {
     }).toList();
 
     _storage.write('transactions', savedTransactions);
+  }
+
+  Map<String, double> get expensesByCategory {
+    final Map<String, double> totals = {};
+    for (final transaction in transactions) {
+      if (transaction.amount < 0) {
+        totals.update(
+          transaction.category,
+          (current) => current + transaction.amount.abs(),
+          ifAbsent: () => transaction.amount.abs(),
+        );
+      }
+    }
+    return totals;
   }
 }

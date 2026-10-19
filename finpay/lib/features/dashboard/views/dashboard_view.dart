@@ -75,6 +75,102 @@ class DashboardView extends GetView<DashboardController> {
               ],
             ),
           ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: Obx(
+                  () => _summaryCard(
+                    title: 'Total Income',
+                    amount: controller.totalIncome,
+                    icon: Icons.trending_up,
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Obx(
+                  () => _summaryCard(
+                    title: 'Total Expenses',
+                    amount: controller.totalExpenses,
+                    icon: Icons.trending_down,
+                    color: Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 28),
+          const Text(
+            'Spending by Category',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Obx(() {
+            final categoryTotals = controller.expensesByCategory;
+            final total = controller.totalExpenses;
+
+            if (categoryTotals.isEmpty) {
+              return const Card(
+                elevation: 0,
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text('No Expenses recorded yet.'),
+                ),
+              );
+            }
+            return Card(
+              elevation: 0,
+              color: Colors.white,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: categoryTotals.entries.map((entry) {
+                    final percentage = total > 0 ? entry.value / total : 0.0;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  entry.key,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '₹${entry.value.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: percentage.clamp(0.0, 1.0),
+                              minHeight: 8,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Color(0xFF123C69),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            );
+          }),
           const SizedBox(height: 28),
           const Text(
             'Quick Actions',
@@ -342,6 +438,42 @@ Widget _actionButton({
           ],
         ),
       ),
+    ),
+  );
+}
+
+Widget _summaryCard({
+  required String title,
+  required double amount,
+  required IconData icon,
+  required Color color,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 26),
+        const SizedBox(height: 12),
+        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+        const SizedBox(height: 6),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '₹${amount.toStringAsFixed(2)}',
+            style: TextStyle(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }

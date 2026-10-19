@@ -32,6 +32,12 @@ void main() {
   });
 
   group('DashboardController', () {
+    test('calculates total income correctly', () {
+      expect(controller.totalIncome, 25000.00);
+    });
+    test('calculates total expense correctly', () {
+      expect(controller.totalExpenses, 2050.00);
+    });
     test('addMoney saves the updated balance to storage', () async {
       controller.addMoney(500);
 
