@@ -128,4 +128,18 @@ class DashboardController extends GetxController {
     }
     return totals;
   }
+
+  bool deleteTransaction(TransactionModel transaction) {
+    final exists = transactions.contains(transaction);
+
+    if (!exists) return false;
+    if (transaction.amount > 0) {
+      walletBalance.value -= transaction.amount;
+    } else {
+      walletBalance.value += transaction.amount.abs();
+    }
+    transactions.remove(transaction);
+    _saveData();
+    return true;
+  }
 }

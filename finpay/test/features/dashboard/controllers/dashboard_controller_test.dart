@@ -109,6 +109,65 @@ void main() {
       expect(controller.transactions.first.category, 'Food');
       expect(controller.transactions.first.amount, -1000.00);
     });
+    test('deleteTransaction refunds an expense and removes it', () {
+      final success = controller.addExpense(
+        500,
+        title: 'Lunch',
+        category: 'Food',
+      );
+
+      expect(success, isTrue);
+      expect(controller.walletBalance.value, 11950.00);
+      final expense = controller.transactions.first;
+      final deleted = controller.deleteTransaction(expense);
+      expect(deleted, isTrue);
+      expect(controller.walletBalance.value, 12450.00);
+
+      expect(
+        controller.transactions.any(
+          (transaction) => transaction.title == 'Lunch',
+        ),
+        isFalse,
+      );
+    });
+
+    test('deleteTransaction deducts income and removes it', () {
+      controller.addMoney(2000);
+      expect(controller.walletBalance.value, 14450.00);
+
+      final income = controller.transactions.first;
+      final deleted = controller.deleteTransaction(income);
+      expect(deleted, isTrue);
+
+      expect(controller.walletBalance.value, 12450.00);
+
+      expect(
+        controller.transactions.any(
+          (transaction) => transaction.title == 'Money Added',
+        ),
+        isFalse,
+      );
+    });
+
+    test('delete Transaction stays deleted after ', () async {
+      controller.addExpense(500, title: 'Lunch', category: 'Food');
+      final expense = controller.transactions.first;
+      controller.deleteTransaction(expense);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      final newController = DashboardController(storage: testStorage);
+      newController.onInit();
+
+      expect(
+        controller.transactions.any(
+          (transaction) => transaction.title == 'Lunch',
+        ),
+        isFalse,
+      );
+
+      expect(controller.walletBalance.value, 12450.00);
+      newController.onClose();
+    });
 
     test('addExpense rejects an amount greater than balance', () {
       final initialBalance = controller.walletBalance.value;
@@ -119,6 +178,29 @@ void main() {
       expect(success, isFalse);
       expect(controller.walletBalance.value, initialBalance);
       expect(controller.transactions.length, initialTransactionCount);
+    });
+
+    test('deleteTransaction returns false if transaction is absent', () {
+      final initialBalance = controller.walletBalance.value;
+      final initialCount = controller.transactions.length;
+
+      controller.addMoney(1000);
+
+      final transaction = controller.transactions.first;
+      controller.transactions.remove(transaction);
+
+      final balanceBeforeDelete = controller.walletBalance.value;
+      final countBeforeDelete = controller.transactions.length;
+
+      final deleted = controller.deleteTransaction(transaction);
+
+      expect(deleted, isFalse);
+      expect(controller.walletBalance.value, balanceBeforeDelete);
+      expect(controller.transactions.length, countBeforeDelete);
+
+      // The initial balance was captured to make the setup explicit.
+      expect(initialBalance, 12450.00);
+      expect(initialCount, 3);
     });
 
     test('addExpense rejects zero and negative amounts', () {
