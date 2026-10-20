@@ -214,4 +214,107 @@ void main() {
       expect(controller.transactions.length, initialTransactionCount);
     });
   });
+  test('editTransaction updates expense and adjusts wallet balance', () {
+    controller.addExpense(500, title: 'Lunch', category: 'Food');
+    final expense = controller.transactions.first;
+
+    final success = controller.editTransaction(
+      expense,
+      title: 'Dinner',
+      category: 'Food',
+      amount: 800,
+    );
+
+    expect(success, isTrue);
+    expect(controller.walletBalance.value, 11650.00);
+    expect(controller.transactions.first.title, 'Dinner');
+    expect(controller.transactions.first.category, 'Food');
+    expect(controller.transactions.first.amount, -800.00);
+  });
+
+  test('editTransaction updates income and adjusts wallet balance', () {
+    controller.addMoney(2000);
+    final income = controller.transactions.first;
+
+    final success = controller.editTransaction(
+      income,
+      title: 'Freelance Payment',
+      category: 'Icome',
+      amount: 1500,
+    );
+
+    expect(success, isTrue);
+    expect(controller.walletBalance.value, 13950.00);
+    expect(controller.transactions.first.title, 'Freelance Payment');
+    expect(controller.transactions.first.category, 'Icome');
+    expect(controller.transactions.first.amount, 1500.00);
+    expect(controller.transactions.first.isIncome, isTrue);
+  });
+
+  test('editTransaction rejects invalid input without changing data', () {
+    controller.addExpense(500, title: 'Lunch', category: 'Food');
+    final expense = controller.transactions.first;
+    final balanceBeforeEdit = controller.walletBalance.value;
+    final titleBeforeEdit = expense.title;
+    final amountBeforeEdit = expense.amount;
+
+    expect(
+      controller.editTransaction(
+        expense,
+        title: '',
+        category: 'Food',
+        amount: 800,
+      ),
+      isFalse,
+    );
+    expect(
+      controller.editTransaction(
+        expense,
+        title: 'Lunch',
+        category: 'Food',
+        amount: -100,
+      ),
+      isFalse,
+    );
+
+    expect(controller.walletBalance.value, balanceBeforeEdit);
+    expect(controller.transactions.first.title, titleBeforeEdit);
+    expect(controller.transactions.first.amount, amountBeforeEdit);
+  });
+
+  test(
+    'editTransaction rejects an expense that would make balance negative',
+    () {
+      controller.addExpense(500, title: 'Lunch', category: 'Food');
+      final expense = controller.transactions.first;
+      final balanceBeforeEdit = controller.walletBalance.value;
+
+      final success = controller.editTransaction(
+        expense,
+        title: 'Expensive Purchase',
+        category: 'Shopping',
+        amount: 20000,
+      );
+      expect(success, isFalse);
+      expect(controller.walletBalance.value, balanceBeforeEdit);
+      expect(controller.transactions.first.title, 'Lunch');
+      expect(controller.transactions.first.amount, -500.00);
+    },
+  );
+  test('editTransaction rejects a transaction that no longer exists', () {
+    controller.addExpense(500, title: 'Lunch', category: 'Food');
+    final transaction = controller.transactions.first;
+    final initialBalance = controller.walletBalance.value;
+
+    controller.transactions.remove(transaction);
+
+    final success = controller.editTransaction(
+      transaction,
+      title: 'Updated Transaction',
+      category: 'Other',
+      amount: 100,
+    );
+    expect(success, isFalse);
+    expect(controller.walletBalance.value, initialBalance);
+  });
 }

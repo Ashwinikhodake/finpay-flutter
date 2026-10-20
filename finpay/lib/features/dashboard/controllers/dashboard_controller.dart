@@ -142,4 +142,36 @@ class DashboardController extends GetxController {
     _saveData();
     return true;
   }
+
+  bool editTransaction(
+    TransactionModel transaction, {
+    required String title,
+    required String category,
+    required double amount,
+  }) {
+    if (title.trim().isEmpty || category.trim().isEmpty || amount <= 0) {
+      return false;
+    }
+    final index = transactions.indexOf(transaction);
+    if (index == -1) return false;
+
+    final oldAmount = transaction.amount;
+    final newAmount = oldAmount > 0 ? amount : -amount;
+
+    final adjustedBalance = walletBalance.value - oldAmount + newAmount;
+
+    if (adjustedBalance < 0) return false;
+
+    walletBalance.value = adjustedBalance;
+
+    transactions[index] = TransactionModel(
+      title: title.trim(),
+      category: category.trim(),
+      amount: newAmount,
+      date: transaction.date,
+    );
+
+    _saveData();
+    return true;
+  }
 }

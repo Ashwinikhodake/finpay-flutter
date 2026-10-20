@@ -1,4 +1,5 @@
 import 'package:finpay/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -247,6 +248,160 @@ class TransactionHistoryView extends GetView<DashboardController> {
                               fontWeight: FontWeight.bold,
                               color: isIncome ? Colors.green : Colors.red,
                             ),
+                          ),
+
+                          IconButton(
+                            onPressed: () {
+                              final titleController = TextEditingController(
+                                text: transaction.title,
+                              );
+                              final amountController = TextEditingController(
+                                text: transaction.amount.abs().toString(),
+                              );
+                              final categoryController = TextEditingController(
+                                text: transaction.category,
+                              );
+
+                              Get.dialog(
+                                AlertDialog(
+                                  title: const Text('Edit Transaction'),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: titleController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Transaction Title',
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        TextField(
+                                          controller: amountController,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Amount',
+                                            prefixText: '₹ ',
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        DropdownButtonFormField<String>(
+                                          initialValue:
+                                              [
+                                                'Food',
+                                                'Shoping',
+                                                'Utilities',
+                                                'Transport',
+                                                'Health',
+                                                'Entertainment',
+                                                'Other',
+                                              ].contains(
+                                                categoryController.text,
+                                              )
+                                              ? categoryController.text
+                                              : 'Other',
+                                          decoration: const InputDecoration(
+                                            labelText: 'Category',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          items:
+                                              const [
+                                                'Food',
+                                                'Shoping',
+                                                'Utilities',
+                                                'Transport',
+                                                'Health',
+                                                'Entertainment',
+                                                'Other',
+                                              ].map((category) {
+                                                return DropdownMenuItem<String>(
+                                                  value: category,
+                                                  child: Text(category),
+                                                );
+                                              }).toList(),
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              categoryController.text = value;
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Get.back(),
+                                      child: const Text('Canel'),
+                                    ),
+
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        final title = titleController.text
+                                            .trim();
+                                        final category = categoryController.text
+                                            .trim();
+                                        final amount = double.tryParse(
+                                          amountController.text.trim(),
+                                        );
+
+                                        if (title.isEmpty ||
+                                            category.isEmpty ||
+                                            amount == null ||
+                                            !amount.isFinite ||
+                                            amount <= 0) {
+                                          Get.snackbar(
+                                            'Invalid input',
+                                            'Enter a title, category, and valid positive amount.',
+                                          );
+                                          return;
+                                        }
+
+                                        final success = controller
+                                            .editTransaction(
+                                              transaction,
+                                              title: title,
+                                              category: category,
+                                              amount: amount,
+                                            );
+
+                                        if (success) {
+                                          Get.back();
+                                          Get.snackbar(
+                                            'Success',
+                                            'Transaction updated successfully',
+                                            snackPosition: SnackPosition.BOTTOM,
+                                          );
+                                        } else {
+                                          Get.snackbar(
+                                            'Update failed',
+                                            'The wallet balance would become negative, or the transaction no longer exists.',
+                                            snackPosition: SnackPosition.BOTTOM,
+                                          );
+                                        }
+                                        // titleController.dispose();
+                                        // amountController.dispose();
+                                        // categoryController.dispose();
+                                      },
+
+                                      child: const Text('Save'),
+                                    ),
+                                  ],
+                                ),
+                              ).whenComplete(() {
+                                titleController.dispose();
+                                amountController.dispose();
+                                categoryController.dispose();
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: Colors.blue,
+                            ),
+                            tooltip: 'Edit transaction',
                           ),
                           IconButton(
                             onPressed: () {
