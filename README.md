@@ -1,21 +1,33 @@
 # FinPay — Flutter Wallet Demo
 
-FinPay is a fintech-inspired mobile application built with Flutter and Dart to demonstrate wallet UI development, reactive state management, and transaction handling.
+FinPay is a fintech-inspired wallet application built with **Flutter and Dart**. It demonstrates modern mobile UI development, reactive state management, wallet balance calculations, and transaction management.
 
-## Current Features
+This project is being developed as a Flutter portfolio project to showcase practical app architecture, UI design, and application logic.
 
-- Wallet dashboard with a displayed balance
-- Reactive state management using GetX
-- Add Money dialog with amount validation
-- Demo transaction list
-- Basic wallet balance updates and expense validation
+## App Preview
+
+![FinPay Dashboard](screenshots/dashboard.png)
+
+## Features
+
+- **Wallet Dashboard** — View the current demo wallet balance.
+- **Add Money** — Add a simulated amount to the wallet with input validation.
+- **Expense Management** — Record expenses with a title, amount, and category.
+- **Transaction History** — View and manage recorded transactions.
+- **Edit and Delete Transactions** — Update or remove transactions with balance validation.
+- **Category-wise Spending** — View expense breakdowns by category.
+- **Search and Filters** — Find transactions using available search, filter, sorting, and date-filtering options.
+- **Recent Transactions** — View the latest five transactions on the dashboard.
+- **Persistent Local Data** — Store wallet and transaction data locally using GetStorage.
+- **Responsive UI** — Dashboard layouts adapt to desktop and mobile screen sizes.
 
 ## Tech Stack
 
-- Flutter
-- Dart
-- GetX
-- Material 3
+- **Flutter** — Cross-platform UI framework
+- **Dart** — Programming language
+- **GetX** — State management and application bindings
+- **GetStorage** — Local data persistence
+- **Material Design 3** — UI components and styling
 
 ## Project Structure
 
@@ -26,12 +38,18 @@ lib/
 ├── core/
 ├── features/
 │   ├── dashboard/
-│   │   ├── controllers/
 │   │   ├── bindings/
+│   │   ├── controllers/
 │   │   └── views/
 │   ├── scanner/
 │   └── transactions/
 └── main.dart
+
+test/
+└── features/
+    └── dashboard/
+        └── controllers/
+            └── dashboard_controller_test.dart
 ```
 
 ## Getting Started
@@ -40,7 +58,7 @@ lib/
 
 - Flutter SDK
 - Dart SDK
-- An editor such as VS Code or Android Studio
+- VS Code or Android Studio
 
 ### Run Locally
 
@@ -51,8 +69,20 @@ flutter pub get
 flutter run
 ```
 
+### Run Tests
+
+Execute the automated test suite with:
+
+```bash
+flutter test
+```
+
+**Current test status:** All 20 tests passed in the latest verified run.
+
 ## Project Status
 
-This project is under active development. Features will be implemented incrementally as part of a hands-on Flutter portfolio project.
+FinPay is an ongoing portfolio project. Its current focus is improving the user experience, maintaining reliable transaction logic, and preparing the application for portfolio presentation.
 
-**Note:** FinPay is a demo application. Wallet balances and transactions are simulated; no real money or payments are processed.
+## Disclaimer
+
+**FinPay is a demo application.** Wallet balances and transactions are simulated and stored locally. The application does not connect to a real bank account or process real payments.
