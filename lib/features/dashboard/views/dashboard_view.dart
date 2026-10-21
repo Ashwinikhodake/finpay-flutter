@@ -38,68 +38,157 @@ class DashboardView extends GetView<DashboardController> {
           ),
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(24),
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF123C69),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF123C69), Color(0xFF1D5288)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF123C69).withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Demo Wallet Balance',
-                  style: TextStyle(color: Colors.white70),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Wallet Balance',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 Obx(
-                  () => Text(
-                    '₹${controller.walletBalance.value.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  () => FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '₹${controller.walletBalance.value.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Row(
-                  children: [
-                    Icon(Icons.shield_outlined, color: Colors.white70),
-                    SizedBox(width: 8),
-                    Text(
-                      'Demo balance . No real Money',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ],
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.shield_outlined,
+                        color: Colors.white70,
+                        size: 17,
+                      ),
+                      SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          'Demo balance. No real money',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: Obx(
-                  () => _summaryCard(
-                    title: 'Total Income',
-                    amount: controller.totalIncome,
-                    icon: Icons.trending_up,
-                    color: Colors.green,
-                  ),
+
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Obx(
+          //         () => _summaryCard(
+          //           title: 'Total Income',
+          //           amount: controller.totalIncome,
+          //           icon: Icons.trending_up,
+          //           color: Colors.green,
+          //         ),
+          //       ),
+          //     ),
+          //     const SizedBox(width: 12),
+          //     Expanded(
+          //       child: Obx(
+          //         () => _summaryCard(
+          //           title: 'Total Expenses',
+          //           amount: controller.totalExpenses,
+          //           icon: Icons.trending_down,
+          //           color: Colors.orange,
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isMobile = constraints.maxWidth < 600;
+
+              final incomeCard = Obx(
+                () => _summaryCard(
+                  title: 'Total Income',
+                  amount: controller.totalIncome,
+                  icon: Icons.trending_up,
+                  color: Colors.green,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Obx(
-                  () => _summaryCard(
-                    title: 'Total Expenses',
-                    amount: controller.totalExpenses,
-                    icon: Icons.trending_down,
-                    color: Colors.orange,
-                  ),
+              );
+              final expenseCard = Obx(
+                () => _summaryCard(
+                  title: 'Total Expenses',
+                  amount: controller.totalExpenses,
+                  icon: Icons.trending_down,
+                  color: Colors.orange,
                 ),
-              ),
-            ],
+              );
+
+              if (isMobile) {
+                return Column(
+                  children: [
+                    incomeCard,
+                    const SizedBox(height: 12),
+                    expenseCard,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: incomeCard),
+                  const SizedBox(width: 12),
+                  Expanded(child: expenseCard),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 28),
@@ -113,13 +202,57 @@ class DashboardView extends GetView<DashboardController> {
             final total = controller.totalExpenses;
 
             if (categoryTotals.isEmpty) {
-              return const Card(
-                elevation: 0,
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('No Expenses recorded yet.'),
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8EDF3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.pie_chart_outline,
+                      color: Color(0xFF64748B),
+                      size: 24,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'No expenses yet.',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Your spending breakdown will appear here.',
+                            style: TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               );
+              // return const Card(
+              //   elevation: 0,
+              //   child: Padding(
+              //     padding: EdgeInsets.all(20),
+              //     child: Text('No Expenses recorded yet.'),
+              //   ),
+              // );
             }
             return Card(
               elevation: 0,
@@ -177,35 +310,60 @@ class DashboardView extends GetView<DashboardController> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _actionButton(
-                icon: Icons.money,
-                label: 'Add Expense',
-                onTap: () => _showExpenseDialog(),
-              ),
-              const SizedBox(width: 12),
 
-              _actionButton(
-                icon: Icons.qr_code_scanner,
-                label: 'Scan & Pay',
-                onTap: () {},
-              ),
-              const SizedBox(width: 12),
-              _actionButton(
-                icon: Icons.add_circle_outline,
-                label: 'Add Money',
-                onTap: () => _showAddMoneyDialog(),
-              ),
-              const SizedBox(width: 12),
-              _actionButton(
-                icon: Icons.receipt_long,
-                label: 'History',
-                onTap: () {
-                  Get.to(() => const TransactionHistoryView());
-                },
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isMobile = constraints.maxWidth < 600;
+
+              final actions = [
+                _actionButton(
+                  icon: Icons.money,
+                  label: 'Add Expense',
+                  onTap: () => _showExpenseDialog(),
+                ),
+
+                _actionButton(
+                  icon: Icons.qr_code_scanner,
+                  label: 'Scan & Pay',
+                  onTap: () {},
+                ),
+
+                _actionButton(
+                  icon: Icons.add_circle_outline,
+                  label: 'Add Money',
+                  onTap: () => _showAddMoneyDialog(),
+                ),
+
+                _actionButton(
+                  icon: Icons.receipt_long,
+                  label: 'History',
+                  onTap: () {
+                    Get.to(() => const TransactionHistoryView());
+                  },
+                ),
+              ];
+              if (isMobile) {
+                return GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 2.0,
+                  children: actions
+                      .map((action) => SizedBox(child: action))
+                      .toList(),
+                );
+              }
+              return Row(
+                children: [
+                  for (int i = 0; i < actions.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Expanded(child: actions[i]),
+                  ],
+                ],
+              );
+            },
           ),
           const SizedBox(height: 28),
           const Text(
@@ -214,39 +372,149 @@ class DashboardView extends GetView<DashboardController> {
           ),
           const SizedBox(height: 16),
 
-          Obx(
-            () => Column(
-              children: controller.transactions.map((transaciton) {
-                final amount = transaciton.amount;
-                final isCredit = amount > 0;
-                return Card(
-                  elevation: 0,
+          // Obx(
+          //   () => Column(
+          //     children: controller.transactions.map((transaciton) {
+          //       final amount = transaciton.amount;
+          //       final isCredit = amount > 0;
+          //       return Card(
+          //         elevation: 0,
+          //         color: Colors.white,
+          //         margin: const EdgeInsets.only(bottom: 10),
+          //         child: ListTile(
+          //           leading: CircleAvatar(
+          //             backgroundColor: isCredit
+          //                 ? Colors.green.shade50
+          //                 : Colors.orange.shade50,
+          //             child: Icon(
+          //               isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+          //               color: isCredit ? Colors.green : Colors.orange,
+          //             ),
+          //           ),
+          //           title: Text(transaciton.title),
+          //           subtitle: Text(transaciton.category),
+          //           trailing: Text(
+          //             '${isCredit ? '+' : '-'}₹${amount.abs().toStringAsFixed(2)}',
+          //             style: TextStyle(
+          //               fontWeight: FontWeight.bold,
+          //               color: isCredit ? Colors.green : Colors.black87,
+          //             ),
+          //           ),
+          //         ),
+          //       );
+          //     }).toList(),
+          //   ),
+          // ),
+          Obx(() {
+            if (controller.transactions.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
                   color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8EDF3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.receipt_long_outlined,
+                      color: Color(0xFF64748B),
+                      size: 24,
+                    ),
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: Text(
+                        'Your recent transactions will appear here.',
+                        style: TextStyle(
+                          color: Color(0xFF64748B),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Column(
+              children: controller.transactions.take(3).map((transaction) {
+                final amount = transaction.amount;
+                final isCredit = amount > 0;
+                final color = isCredit
+                    ? const Color(0xFF269B45)
+                    : const Color(0xFFF28C00);
+                return Container(
                   margin: const EdgeInsets.only(bottom: 10),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: isCredit
-                          ? Colors.green.shade50
-                          : Colors.orange.shade50,
-                      child: Icon(
-                        isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: isCredit ? Colors.green : Colors.orange,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE8EDF3)),
+                  ),
+
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        child: Icon(
+                          isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+                          color: color,
+                          size: 22,
+                        ),
                       ),
-                    ),
-                    title: Text(transaciton.title),
-                    subtitle: Text(transaciton.category),
-                    trailing: Text(
-                      '${isCredit ? '+' : '-'}₹${amount.abs().toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isCredit ? Colors.green : Colors.black87,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              transaction.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              transaction.category,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${isCredit ? '+' : '-'}₹${amount.abs().toStringAsFixed(2)}',
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }).toList(),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -416,26 +684,31 @@ Widget _actionButton({
   required String label,
   required VoidCallback onTap,
 }) {
-  return Expanded(
+  return Material(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(16),
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 4),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: const Color(0xFF123C69), size: 26),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-          ],
+      child: SizedBox(
+        height: 88,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: const Color(0xFF123C69), size: 24),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -449,28 +722,52 @@ Widget _summaryCard({
   required Color color,
 }) {
   return Container(
+    width: double.infinity,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: const Color(0xFFE8EDF3)),
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    child: Row(
       children: [
-        Icon(icon, color: color, size: 26),
-        const SizedBox(height: 12),
-        Text(title, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-        const SizedBox(height: 6),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '₹${amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+          ),
+
+          child: Icon(icon, color: color, size: 24),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '₹${amount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

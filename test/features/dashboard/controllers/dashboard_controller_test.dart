@@ -258,7 +258,7 @@ void main() {
     expect(controller.transactions.first.amount, 1500.00);
     expect(controller.transactions.first.isIncome, isTrue);
   });
-
+ 
   test('editTransaction rejects invalid input without changing data', () {
     controller.addMoney(1000);
     controller.addExpense(500, title: 'Lunch', category: 'Food');
