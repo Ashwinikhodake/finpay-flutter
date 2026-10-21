@@ -6,7 +6,25 @@ This project is being developed as a Flutter portfolio project to showcase pract
 
 ## App Preview
 
+**Dashboard**
 ![FinPay Dashboard](screenshots/dashboard.png)
+<br><br>
+**Category Wise**
+![FinPay Dashboard](screenshots/category-wise.png)
+<br><br>
+**Transactions Preview**
+![FinPay Dashboard](screenshots/transactions.png)
+<br><br>
+**Add Expense**
+![FinPay Dashboard](screenshots/addexpense.png)
+<br><br>
+**Transaction History**
+![FinPay Dashboard](screenshots/transaction-history.png)
+<br><br>
+**Search and Filters**
+![FinPay Dashboard](screenshots/filters.png)
+
+
 
 ## Features
 
